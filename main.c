@@ -122,11 +122,11 @@ void print_ethernet_header(const u_char *Buffer, int Size)
 {
     struct ethhdr *eth = (struct ethhdr *)Buffer;
 
-    fprintf(logfile , "\n");
-    fprintf(logfile , "Ethernet Header\n");
-    fprintf(logfile , "   |-Destination Address : %.2X-%.2X-%.2X-%.2X-%.2X-%.2X \n", eth->h_dest[0] , eth->h_dest[1] , eth->h_dest[2] , eth->h_dest[3] , eth->h_dest[4] , eth->h_dest[5] );
-    fprintf(logfile , "   |-Source Address      : %.2X-%.2X-%.2X-%.2X-%.2X-%.2X \n", eth->h_source[0] , eth->h_source[1] , eth->h_source[2] , eth->h_source[3] , eth->h_source[4] , eth->h_source[5] );
-    fprintf(logfile , "   |-Protocol            : %u \n",(unsigned short)eth->h_proto);
+    printf("\n");
+    printf("Ethernet Header\n");
+    printf("   |-Destination Address : %.2X-%.2X-%.2X-%.2X-%.2X-%.2X \n", eth->h_dest[0] , eth->h_dest[1] , eth->h_dest[2] , eth->h_dest[3] , eth->h_dest[4] , eth->h_dest[5] );
+    printf("   |-Source Address      : %.2X-%.2X-%.2X-%.2X-%.2X-%.2X \n", eth->h_source[0] , eth->h_source[1] , eth->h_source[2] , eth->h_source[3] , eth->h_source[4] , eth->h_source[5] );
+    printf("   |-Protocol            : %u \n",(unsigned short)eth->h_proto);
 }
 
 void print_ip_header(const u_char * Buffer, int Size)
@@ -144,19 +144,6 @@ void print_ip_header(const u_char * Buffer, int Size)
     memset(&dest, 0, sizeof(dest));
     dest.sin_addr.s_addr = iph->daddr;
 
-//    fprintf(logfile , "\n");
-//    fprintf(logfile , "IP Header\n");
-//    fprintf(logfile , "   |-IP Version        : %d\n",(unsigned int)iph->version);
-//    fprintf(logfile , "   |-IP Header Length  : %d DWORDS or %d Bytes\n",(unsigned int)iph->ihl,((unsigned int)(iph->ihl))*4);
-//    fprintf(logfile , "   |-Type Of Service   : %d\n",(unsigned int)iph->tos);
-//    fprintf(logfile , "   |-IP Total Length   : %d  Bytes(Size of Packet)\n",ntohs(iph->tot_len));
-//    fprintf(logfile , "   |-Identification    : %d\n",ntohs(iph->id));
-//    fprintf(logfile , "   |-TTL      : %d\n",(unsigned int)iph->ttl);
-//    fprintf(logfile , "   |-Protocol : %d\n",(unsigned int)iph->protocol);
-//    fprintf(logfile , "   |-Checksum : %d\n",ntohs(iph->check));
-//    fprintf(logfile , "   |-Source IP        : %s\n" , inet_ntoa(source.sin_addr) );
-//    fprintf(logfile , "   |-Destination IP   : %s\n" , inet_ntoa(dest.sin_addr) );
-
     printf("\n");
     printf("IP Header\n");
     printf("   |-IP Version        : %d\n",(unsigned int)iph->version);
@@ -170,7 +157,6 @@ void print_ip_header(const u_char * Buffer, int Size)
     printf("   |-Source IP        : %s\n" , inet_ntoa(source.sin_addr) );
     printf("   |-Destination IP   : %s\n" , inet_ntoa(dest.sin_addr) );
 
-    printf("Trying to send packet to other interface.\n");
 
     pcap_t *fp;
     char errbuf[PCAP_ERRBUF_SIZE];
@@ -205,11 +191,15 @@ void print_ip_header(const u_char * Buffer, int Size)
     packet[10]=eth->h_dest[4];
     packet[11]=eth->h_dest[5];
 
+    print_ethernet_header(packet, Size);
+
     if (pcap_sendpacket(fp, packet, Size) != 0)
     {
         fprintf(stderr,"\nError sending the packet: %s\n", pcap_geterr(fp));
         return;
     }
+
+    printf("Packet sent to dest interface.\n");
 }
 
 void print_tcp_packet(const u_char * Buffer, int Size)
