@@ -158,13 +158,13 @@ void print_ip_header(const u_char * Buffer, int Size)
     pcap_t *fp;
     char errbuf[PCAP_ERRBUF_SIZE];
 
-    int n;
-    printf("Enter 1 to forward packet : ");
-    scanf("%d" , &n);
-
-    if (n!=1){
-        return;
-    }
+//    int n;
+//    printf("Enter 1 to forward packet : ");
+//    scanf("%d" , &n);
+//
+//    if (n!=1){
+//        return;
+//    }
 
     /* Open the output device */
     fp = pcap_open_live("veth4" , Size , 1 , 0 , errbuf);
@@ -203,6 +203,17 @@ void print_ip_header(const u_char * Buffer, int Size)
         fprintf(stderr,"\nError sending the packet: %s\n", pcap_geterr(fp));
         return;
     }
+
+    iph = (struct iphdr *)(packet  + sizeof(struct ethhdr) );
+
+    memset(&source, 0, sizeof(source));
+    source.sin_addr.s_addr = iph->saddr;
+
+    memset(&dest, 0, sizeof(dest));
+    dest.sin_addr.s_addr = iph->daddr;
+
+    printf("   |-Source IP        : %s\n" , inet_ntoa(source.sin_addr) );
+    printf("   |-Destination IP   : %s\n" , inet_ntoa(dest.sin_addr) );
 
     printf("Packet sent to dest interface.\n");
 }
