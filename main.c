@@ -171,7 +171,6 @@ void print_ip_header(const u_char * Buffer, int Size)
 
     printf("Opening device veth4 to send packets ... ");
 
-    struct ethhdr *eth = (struct ethhdr *)Buffer;
 
     u_char *packet;
 
@@ -184,12 +183,12 @@ void print_ip_header(const u_char * Buffer, int Size)
     packet[4]=0xfc;
     packet[5]=0x6c;
 
-    packet[6]=eth->h_dest[0];
-    packet[7]=eth->h_dest[1];
-    packet[8]=eth->h_dest[2];
-    packet[9]=eth->h_dest[3];
-    packet[10]=eth->h_dest[4];
-    packet[11]=eth->h_dest[5];
+    packet[6]=0xa2;
+    packet[7]=0xa6;
+    packet[8]=0xc6;
+    packet[9]=0x95;
+    packet[10]=0x58;
+    packet[11]=0xf9;
 
     print_ethernet_header(packet, Size);
 
