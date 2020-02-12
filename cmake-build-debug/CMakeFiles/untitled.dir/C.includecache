@@ -1,0 +1,32 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/raffaele/CLionProjects/untitled/main.c
+pcap.h
+-
+stdio.h
+-
+stdlib.h
+-
+string.h
+-
+sys/socket.h
+-
+arpa/inet.h
+-
+net/ethernet.h
+-
+netinet/ip_icmp.h
+-
+netinet/udp.h
+-
+netinet/tcp.h
+-
+netinet/ip.h
+-
+
