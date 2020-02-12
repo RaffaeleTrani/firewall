@@ -182,21 +182,25 @@ void print_ip_header(const u_char * Buffer, int Size)
 
     packet = (u_char *)Buffer;
 
-//    packet[0]=0x3e;
-//    packet[1]=0x10;
-//    packet[2]=0x0f;
-//    packet[3]=0x9a;
-//    packet[4]=0xfc;
-//    packet[5]=0x6c;
-//
-//    packet[6]=0xa2;
-//    packet[7]=0xa6;
-//    packet[8]=0xc6;
-//    packet[9]=0x95;
-//    packet[10]=0x58;
-//    packet[11]=0xf9;
+    packet[0]=0x3e;
+    packet[1]=0x10;
+    packet[2]=0x0f;
+    packet[3]=0x9a;
+    packet[4]=0xfc;
+    packet[5]=0x6c;
+
+    packet[6]=0xa2;
+    packet[7]=0xa6;
+    packet[8]=0xc6;
+    packet[9]=0x95;
+    packet[10]=0x58;
+    packet[11]=0xf9;
 
     print_ethernet_header(packet, Size);
+
+    iph = (struct iphdr *)(packet  + sizeof(struct ethhdr) );
+
+    inet_pton(AF_INET, "10.100.4.1", &dest.sin_addr.s_addr);
 
     if (pcap_sendpacket(fp, packet, Size) != 0)
     {
