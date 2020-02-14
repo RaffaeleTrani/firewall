@@ -104,10 +104,10 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
             print_tcp_packet(buffer , size);
             break;
 
-        case 17: //UDP Protocol
-            ++udp;
-            print_udp_packet(buffer , size);
-            break;
+//        case 17: //UDP Protocol
+//            ++udp;
+//            print_udp_packet(buffer , size);
+//            break;
 
         default: //Some Other Protocol like ARP etc.
             ++others;
@@ -183,17 +183,17 @@ void elaborate_and_print_ip_header(const u_char * Buffer, int Size)
     printf("   |-Destination IP   : %s\n" , inet_ntoa(dest.sin_addr) );
     */
 
-    pcap_t *fp;
-    char errbuf[PCAP_ERRBUF_SIZE];
-
-    /* Open the output device */
-    fp = pcap_open_live("veth2" , Size , 1 , 0 , errbuf);
-
-    if (fp == NULL)
-    {
-        fprintf(stderr, "Couldn't open device veth2 : %s\n", errbuf);
-        exit(1);
-    }
+//    pcap_t *fp;
+//    char errbuf[PCAP_ERRBUF_SIZE];
+//
+//    /* Open the output device */
+//    fp = pcap_open_live("veth2" , Size , 1 , 0 , errbuf);
+//
+//    if (fp == NULL)
+//    {
+//        fprintf(stderr, "Couldn't open device veth2 : %s\n", errbuf);
+//        exit(1);
+//    }
 
 //    printf("Opening device veth2 to send packets ... ");
 
@@ -201,13 +201,13 @@ void elaborate_and_print_ip_header(const u_char * Buffer, int Size)
 
 //    print_ethernet_header(packet, Size);
 
-    iph = (struct iphdr *)(packet  + sizeof(struct ethhdr) );
-
-    if (pcap_sendpacket(fp, packet, Size) != 0)
-    {
-        fprintf(stderr,"\nError sending the packet: %s\n", pcap_geterr(fp));
-        return;
-    }
+//    iph = (struct iphdr *)(packet  + sizeof(struct ethhdr) );
+//
+//    if (pcap_sendpacket(fp, packet, Size) != 0)
+//    {
+//        fprintf(stderr,"\nError sending the packet: %s\n", pcap_geterr(fp));
+//        return;
+//    }
 
 //    iph = (struct iphdr *)(packet  + sizeof(struct ethhdr) );
 //
@@ -273,42 +273,6 @@ void print_tcp_packet(const u_char * Buffer, int Size)
     fprintf(logfile , "\n###########################################################");
 }
 
-void print_udp_packet(const u_char *Buffer , int Size)
-{
-
-    unsigned short iphdrlen;
-
-    struct iphdr *iph = (struct iphdr *)(Buffer +  sizeof(struct ethhdr));
-    iphdrlen = iph->ihl*4;
-
-    struct udphdr *udph = (struct udphdr*)(Buffer + iphdrlen  + sizeof(struct ethhdr));
-
-    int header_size =  sizeof(struct ethhdr) + iphdrlen + sizeof udph;
-
-    fprintf(logfile , "\n\n***********************UDP Packet*************************\n");
-
-    elaborate_and_print_ip_header(Buffer,Size);
-
-    fprintf(logfile , "\nUDP Header\n");
-    fprintf(logfile , "   |-Source Port      : %d\n" , ntohs(udph->source));
-    fprintf(logfile , "   |-Destination Port : %d\n" , ntohs(udph->dest));
-    fprintf(logfile , "   |-UDP Length       : %d\n" , ntohs(udph->len));
-    fprintf(logfile , "   |-UDP Checksum     : %d\n" , ntohs(udph->check));
-
-    fprintf(logfile , "\n");
-    fprintf(logfile , "IP Header\n");
-    PrintData(Buffer , iphdrlen);
-
-    fprintf(logfile , "UDP Header\n");
-    PrintData(Buffer+iphdrlen , sizeof udph);
-
-    fprintf(logfile , "Data Payload\n");
-
-    //Move the pointer ahead and reduce the size of string
-    PrintData(Buffer + header_size , Size - header_size);
-
-    fprintf(logfile , "\n###########################################################");
-}
 
 void print_icmp_packet(const u_char * Buffer , int Size)
 {
