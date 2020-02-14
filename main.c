@@ -26,7 +26,7 @@ int tcp=0,udp=0,icmp=0,others=0,igmp=0,total=0,i,j;
 int main(int argc, char **argv)
 {
 
-    if (argc < 2 || (strcmp(argv[1], "nsm") != 0 || strcmp(argv[1], "namespaces") != 0)) {
+    if (argc < 2 || (strcmp(argv[1], "nsm") != 0 && strcmp(argv[1], "namespaces") != 0)) {
         printf("Usage: nsm or namespaces\n");
         return 0;
     }
