@@ -266,7 +266,7 @@ void print_tcp_packet(const u_char * Buffer, int Size)
     fprintf(logfile , "TCP Header\n");
     PrintData(Buffer+iphdrlen,tcph->doff*4);
 
-    fprintf(logfile , "Data Payload\n");
+    fprintf(logfile , "Data Payload (size %d)\n", Size-header_size);
     PrintData(Buffer + header_size , Size - header_size );
 
     fprintf(logfile , "\n###########################################################");
