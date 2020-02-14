@@ -168,7 +168,7 @@ int elaborate_packet(const u_char * Buffer, int Size)
     char *source_addr = inet_ntoa(source.sin_addr);
 
 
-    if (!strstr(source_addr, "172.16")) {
+    if (!strstr(source_addr, "172.16") && !strstr(source_addr, "10.100")) {
         printf("Source ip %s not allowed\n", source_addr);
         return 1;
     }
