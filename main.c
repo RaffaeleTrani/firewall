@@ -21,7 +21,7 @@ void PrintData (const u_char * , int);
 int elaborate_packet(const u_char * , int);
 
 struct sockaddr_in source,dest;
-int tcp=0,udp=0,icmp=0,others=0,igmp=0,total=0,i,j;
+int tcp=0,udp=0,icmp=0,others=0,igmp=0,total=0;
 
 int main(int argc, char **argv)
 {
@@ -132,10 +132,6 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
             elaborate_packet( buffer , size);
             break;
 
-        case 2:  //IGMP Protocol
-            ++igmp;
-            break;
-
         case 6:  //TCP Protocol
             ++tcp;
             elaborate_packet(buffer, size);
@@ -150,7 +146,7 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
             ++others;
             break;
     }
-    printf("TCP : %d   UDP : %d   ICMP : %d   IGMP : %d   Others : %d   Total : %d\r", tcp , udp , icmp , igmp , others , total);
+    printf("TCP : %d   UDP : %d   ICMP : %d   Others : %d   Total : %d\r", tcp , udp , icmp , others , total);
 }
 
 
@@ -167,10 +163,12 @@ int elaborate_packet(const u_char * Buffer, int Size)
 
     char *source_addr = inet_ntoa(source.sin_addr);
 
+    int a,b,c,d;
 
-    if (!strstr(source_addr, "172.16") && !strstr(source_addr, "10.100")) {
+    sscanf(source_addr,"%d.%d.%d.%d", &a, &b, &c, &d);
+
+    if ((a != 100 && a != 172) || (b != 10 && b != 16)) {
         printf("Source ip %s not allowed\n", source_addr);
         return 1;
     }
-
 }
