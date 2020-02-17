@@ -167,7 +167,7 @@ int elaborate_packet(const u_char * Buffer, int Size)
 
     sscanf(source_addr,"%d.%d.%d.%d", &a, &b, &c, &d);
 
-    if ((a != 100 && a != 172) || (b != 10 && b != 16)) {
+    if ((a != 10 && a != 172) || (b != 100 && b != 16)) {
         printf("Source ip %s not allowed\n", source_addr);
         return 1;
     }
