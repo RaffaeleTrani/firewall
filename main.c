@@ -14,9 +14,6 @@
 void process_packet(u_char *, const struct pcap_pkthdr *, const u_char *);
 void process_ip_packet(const u_char * , int);
 void print_ip_packet(const u_char * , int);
-void print_tcp_packet(const u_char *  , int );
-void print_udp_packet(const u_char * , int);
-void print_icmp_packet(const u_char * , int );
 void PrintData (const u_char * , int);
 int elaborate_packet(const u_char * , int);
 
@@ -90,15 +87,17 @@ int main(int argc, char **argv)
             printf("%d. %s - %s\n" , count , device->name , device->description);
             if(device->name != NULL)
             {
+                if (strstr(device->name, "veth1"))
+                    devname = device->name;
                 strcpy(devs[count] , device->name);
             }
             count++;
         }
 
         //Ask user which device to sniff
-        printf("Enter the number of the device you want to sniff : ");
-        scanf("%d" , &n);
-        devname = devs[n];
+//        printf("Enter the number of the device you want to sniff : ");
+//        scanf("%d" , &n);
+//        devname = devs[n];
 
         //Open the device for sniffing
         printf("Opening device %s for sniffing ... " , devname);
