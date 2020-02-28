@@ -145,7 +145,7 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
             ++others;
             break;
     }
-    printf("TCP : %d   UDP : %d   ICMP : %d   Others : %d   Total : %d\r", tcp , udp , icmp , others , total);
+//    printf("TCP : %d   UDP : %d   ICMP : %d   Others : %d   Total : %d\r", tcp , udp , icmp , others , total);
 }
 
 
