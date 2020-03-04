@@ -12,13 +12,12 @@
 #include<netinet/ip.h>    //Provides declarations for ip header
 
 void process_packet(u_char *, const struct pcap_pkthdr *, const u_char *);
-void process_ip_packet(const u_char * , int);
-void print_ip_packet(const u_char * , int);
-void PrintData (const u_char * , int);
-int elaborate_packet(const u_char * , int);
+int elaborate_packet(const u_char *);
 
 struct sockaddr_in source,dest;
 int tcp=0,udp=0,icmp=0,others=0,igmp=0,total=0;
+
+pcap_t *handle_in, *handle_out; //Handle of the device that shall be sniffed
 
 int main(int argc, char **argv)
 {
@@ -28,7 +27,6 @@ int main(int argc, char **argv)
         return 0;
     }
     pcap_if_t *alldevsp , *device;
-    pcap_t *handle; //Handle of the device that shall be sniffed
 
     char errbuf[100] , *devname , devs[100][100];
     int count = 1 , n;
@@ -58,18 +56,25 @@ int main(int argc, char **argv)
         }
 
         //Open the device for sniffing
-        printf("Opening NSM device with clinet %s for sniffing ... " , devname);
-        handle = pcap_open_live(devname , 65536 , 1 , 0 , errbuf);
+        printf("Opening NSM device %s for sniffing ... " , devname);
+        handle_in = pcap_open_live("veth1" , 65536 , 1 , 0 , errbuf);
+        handle_out = pcap_open_live("veth2" , 65536 , 1 , 0 , errbuf);
 
-        if (handle == NULL)
+        if (handle_in == NULL)
         {
-            fprintf(stderr, "Couldn't open device %s : %s\n" , devname , errbuf);
+            fprintf(stderr, "Couldn't open device veth1 : %s\n", errbuf);
+            exit(1);
+        }
+        if (handle_out == NULL)
+        {
+            fprintf(stderr, "Couldn't open device veth2 : %s\n", errbuf);
             exit(1);
         }
         printf("Done\n");
 
         //Put the device in sniff loop
-        pcap_loop(handle , -1 , process_packet , NULL);
+        pcap_loop(handle_in, -1, process_packet, NULL);
+        pcap_loop(handle_out, -1, process_packet, NULL);
     } else {
         //First get the list of available devices
         printf("Finding available devices ... ");
@@ -87,31 +92,33 @@ int main(int argc, char **argv)
             printf("%d. %s - %s\n" , count , device->name , device->description);
             if(device->name != NULL)
             {
-                if (strstr(device->name, "veth1"))
-                    devname = device->name;
                 strcpy(devs[count] , device->name);
             }
             count++;
         }
 
-        //Ask user which device to sniff
-//        printf("Enter the number of the device you want to sniff : ");
-//        scanf("%d" , &n);
-//        devname = devs[n];
-
         //Open the device for sniffing
-        printf("Opening device %s for sniffing ... " , devname);
-        handle = pcap_open_live(devname , 65536 , 1 , 0 , errbuf);
+        printf("Opening NSM device veth1 for sniffing ... ");
+        handle_in = pcap_open_live("veth1" , 65536 , 1 , 0 , errbuf);
+        printf("Opening NSM device veth2 for sniffing ... ");
+        handle_out = pcap_open_live("veth2" , 65536 , 1 , 0 , errbuf);
 
-        if (handle == NULL)
+        if (handle_in == NULL)
         {
-            fprintf(stderr, "Couldn't open device %s : %s\n" , devname , errbuf);
+            fprintf(stderr, "Couldn't open device veth1 : %s\n", errbuf);
+            exit(1);
+        }
+        if (handle_out == NULL)
+        {
+            fprintf(stderr, "Couldn't open device veth2 : %s\n", errbuf);
             exit(1);
         }
         printf("Done\n");
 
+
         //Put the device in sniff loop
-        pcap_loop(handle , -1 , process_packet , NULL);
+        pcap_loop(handle_in , -1 , process_packet , NULL);
+        pcap_loop(handle_out, -1, process_packet, NULL);
     }
 
     return 0;
@@ -120,36 +127,20 @@ int main(int argc, char **argv)
 void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *buffer)
 {
     int size = header->len;
-
-    //Get the IP Header part of this packet , excluding the ethernet header
-    struct iphdr *iph = (struct iphdr*)(buffer + sizeof(struct ethhdr));
-    ++total;
-    switch (iph->protocol) //Check the Protocol and do accordingly...
-    {
-        case 1:  //ICMP Protocol
-            ++icmp;
-            elaborate_packet( buffer , size);
-            break;
-
-        case 6:  //TCP Protocol
-            ++tcp;
-            elaborate_packet(buffer, size);
-            break;
-
-//        case 17: //UDP Protocol
-//            ++udp;
-//            print_udp_packet(buffer , size);
-//            break;
-
-        default: //Some Other Protocol like ARP etc.
-            ++others;
-            break;
+    int res = elaborate_packet(buffer);
+    if (res == 1) {
+        return;
     }
-//    printf("TCP : %d   UDP : %d   ICMP : %d   Others : %d   Total : %d\r", tcp , udp , icmp , others , total);
+    if (pcap_sendpacket(handle_out, buffer, strlen(buffer)) != 0)
+    {
+        fprintf(stderr,"\nError sending the packet: %s\n", pcap_geterr(handle_out));
+        return;
+    }
+    printf("Packet sent to dest interface.\n");
 }
 
 
-int elaborate_packet(const u_char * Buffer, int Size)
+int elaborate_packet(const u_char * Buffer)
 {
 
     struct iphdr *iph = (struct iphdr *)(Buffer  + sizeof(struct ethhdr) );
