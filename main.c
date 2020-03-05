@@ -11,7 +11,8 @@
 #include<netinet/tcp.h>   //Provides declarations for tcp header
 #include<netinet/ip.h>    //Provides declarations for ip header
 
-void process_packet(u_char *, const struct pcap_pkthdr *, const u_char *);
+void process_in_packet(u_char *, const struct pcap_pkthdr *, const u_char *);
+void process_out_packet(u_char *, const struct pcap_pkthdr *, const u_char *);
 int elaborate_packet(const u_char *);
 
 struct sockaddr_in source,dest;
@@ -73,8 +74,8 @@ int main(int argc, char **argv)
         printf("Done\n");
 
         //Put the device in sniff loop
-        pcap_loop(handle_in, -1, process_packet, NULL);
-        pcap_loop(handle_out, -1, process_packet, NULL);
+        pcap_loop(handle_in, -1, process_in_packet, NULL);
+        pcap_loop(handle_out, -1, process_out_packet, NULL);
     } else {
         //First get the list of available devices
         printf("Finding available devices ... ");
@@ -117,15 +118,16 @@ int main(int argc, char **argv)
 
 
         //Put the device in sniff loop
-        pcap_loop(handle_in , -1 , process_packet , NULL);
-        pcap_loop(handle_out, -1, process_packet, NULL);
+        pcap_loop(handle_in , -1 , process_in_packet , NULL);
+        pcap_loop(handle_out, -1, process_out_packet, NULL);
     }
 
     return 0;
 }
 
-void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *buffer)
+void process_in_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *buffer)
 {
+    printf("received packet from in interface\n");
     int size = header->len;
     int res;
     //Get the IP Header part of this packet , excluding the ethernet header
@@ -156,7 +158,43 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
         fprintf(stderr,"\nError sending the packet: %s\n", pcap_geterr(handle_out));
         return;
     }
-    printf("Packet sent to dest interface.\n");
+    printf("Packet sent to out interface.\n");
+}
+
+void process_out_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *buffer)
+{
+    printf("received packet from out interface\n");
+    int size = header->len;
+    int res;
+    //Get the IP Header part of this packet , excluding the ethernet header
+    struct iphdr *iph = (struct iphdr*)(buffer + sizeof(struct ethhdr));
+    ++total;
+    switch (iph->protocol) //Check the Protocol and do accordingly...
+    {
+        case 1:  //ICMP Protocol
+            ++icmp;
+            printf("ICMP\n");
+            res = elaborate_packet(buffer);
+            break;
+        case 6:  //TCP Protocol
+            ++tcp;
+            res = elaborate_packet(buffer);
+            break;
+        default: //Some Other Protocol like ARP etc.
+            printf("Other\n");
+            ++others;
+            break;
+    }
+//    res = elaborate_packet(buffer);
+    if (res == 1) {
+        return;
+    }
+    if (pcap_sendpacket(handle_in, buffer, strlen(buffer)) != 0)
+    {
+        fprintf(stderr,"\nError sending the packet: %s\n", pcap_geterr(handle_out));
+        return;
+    }
+    printf("Packet sent to in interface.\n");
 }
 
 
