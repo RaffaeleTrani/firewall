@@ -10,6 +10,7 @@
 #include<netinet/udp.h>   //Provides declarations for udp header
 #include<netinet/tcp.h>   //Provides declarations for tcp header
 #include<netinet/ip.h>    //Provides declarations for ip header
+#include <zconf.h>
 
 void process_in_packet(u_char *, const struct pcap_pkthdr *, const u_char *);
 void process_out_packet(u_char *, const struct pcap_pkthdr *, const u_char *);
@@ -116,9 +117,13 @@ int main(int argc, char **argv)
         }
         printf("Done\n");
 
-
+        if (fork() == 0) {
+            //Child handle veth1
+            //Put the device in sniff loop
+            pcap_loop(handle_in , -1 , process_in_packet , NULL);
+        }
+        //Parent handle veth2
         //Put the device in sniff loop
-        pcap_loop(handle_in , -1 , process_in_packet , NULL);
         pcap_loop(handle_out, -1, process_out_packet, NULL);
     }
 
@@ -165,7 +170,7 @@ void process_out_packet(u_char *args, const struct pcap_pkthdr *header, const u_
 {
     int size = header->len;
     int res;
-    printf("Received packet from in interface, size: %d\n", size);
+    printf("Received packet from out interface, size: %d\n", size);
     //Get the IP Header part of this packet , excluding the ethernet header
     struct iphdr *iph = (struct iphdr*)(buffer + sizeof(struct ethhdr));
     ++total;
