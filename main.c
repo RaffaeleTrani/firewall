@@ -59,8 +59,8 @@ int main(int argc, char **argv)
 
         //Open the device for sniffing
         printf("Opening NSM device %s for sniffing ... " , devname);
-        handle_in = pcap_open_live("veth1" , 1460 , 1 , 0 , errbuf);
-        handle_out = pcap_open_live("veth2" , 1460 , 1 , 0 , errbuf);
+        handle_in = pcap_open_live("veth1" , 131072 , 1 , 0 , errbuf);
+        handle_out = pcap_open_live("veth2" , 131072 , 1 , 0 , errbuf);
 
         if (handle_in == NULL)
         {
