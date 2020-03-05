@@ -127,7 +127,27 @@ int main(int argc, char **argv)
 void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *buffer)
 {
     int size = header->len;
-    int res = elaborate_packet(buffer);
+    int res;
+    //Get the IP Header part of this packet , excluding the ethernet header
+    struct iphdr *iph = (struct iphdr*)(buffer + sizeof(struct ethhdr));
+    ++total;
+    switch (iph->protocol) //Check the Protocol and do accordingly...
+    {
+        case 1:  //ICMP Protocol
+            ++icmp;
+            printf("ICMP\n");
+            res = elaborate_packet(buffer);
+            break;
+        case 6:  //TCP Protocol
+            ++tcp;
+            res = elaborate_packet(buffer);
+            break;
+        default: //Some Other Protocol like ARP etc.
+            printf("Other\n");
+            ++others;
+            break;
+    }
+//    res = elaborate_packet(buffer);
     if (res == 1) {
         return;
     }
@@ -142,7 +162,6 @@ void process_packet(u_char *args, const struct pcap_pkthdr *header, const u_char
 
 int elaborate_packet(const u_char * Buffer)
 {
-
     struct iphdr *iph = (struct iphdr *)(Buffer  + sizeof(struct ethhdr) );
 
     memset(&source, 0, sizeof(source));
