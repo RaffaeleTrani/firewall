@@ -132,26 +132,21 @@ int main(int argc, char **argv)
 
 void process_in_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *buffer)
 {
-    int size = header->len;
-    int res;
-    printf("Received packet from in interface, size: %d\n", size);
+    int size = header->len, res;
     //Get the IP Header part of this packet , excluding the ethernet header
-    struct iphdr *iph = (struct iphdr*)(buffer + sizeof(struct ethhdr));
-    ++total;
+    struct iphdr *iph = (struct iphdr *)(buffer + sizeof(struct ethhdr));
+//    printf("Received packet from in interface, size: %d\n", size);
     switch (iph->protocol) //Check the Protocol and do accordingly...
     {
         case 1:  //ICMP Protocol
-            ++icmp;
-            printf("ICMP\n");
+//            printf("ICMP\n");
             res = elaborate_packet(buffer);
             break;
         case 6:  //TCP Protocol
-            ++tcp;
             res = elaborate_packet(buffer);
             break;
         default: //Some Other Protocol like ARP etc.
-            printf("Other\n");
-            ++others;
+//            printf("Other\n");
             break;
     }
 //    res = elaborate_packet(buffer);
@@ -163,22 +158,21 @@ void process_in_packet(u_char *args, const struct pcap_pkthdr *header, const u_c
         fprintf(stderr,"\nError sending the packet: %s\n", pcap_geterr(handle_out));
         return;
     }
-    printf("Packet sent to out interface.\n");
+//    printf("Packet sent to out interface.\n");
 }
 
 void process_out_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *buffer)
 {
     int size = header->len;
     int res;
-    printf("Received packet from out interface, size: %d\n", size);
+//    printf("Received packet from out interface, size: %d\n", size);
     //Get the IP Header part of this packet , excluding the ethernet header
     struct iphdr *iph = (struct iphdr*)(buffer + sizeof(struct ethhdr));
     ++total;
     switch (iph->protocol) //Check the Protocol and do accordingly...
     {
         case 1:  //ICMP Protocol
-            ++icmp;
-            printf("ICMP\n");
+//            printf("ICMP\n");
             res = elaborate_packet(buffer);
             break;
         case 6:  //TCP Protocol
@@ -186,7 +180,7 @@ void process_out_packet(u_char *args, const struct pcap_pkthdr *header, const u_
             res = elaborate_packet(buffer);
             break;
         default: //Some Other Protocol like ARP etc.
-            printf("Other\n");
+//            printf("Other\n");
             ++others;
             break;
     }
@@ -199,7 +193,7 @@ void process_out_packet(u_char *args, const struct pcap_pkthdr *header, const u_
         fprintf(stderr,"\nError sending the packet: %s\n", pcap_geterr(handle_out));
         return;
     }
-    printf("Packet sent to in interface.\n");
+//    printf("Packet sent to in interface.\n");
 }
 
 
@@ -214,8 +208,6 @@ int elaborate_packet(const u_char * Buffer)
     dest.sin_addr.s_addr = iph->daddr;
 
     char *source_addr = inet_ntoa(source.sin_addr);
-
-    printf("Source address: %s\n", source_addr);
 
     int a,b,c,d;
 
