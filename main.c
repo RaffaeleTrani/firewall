@@ -153,6 +153,8 @@ int elaborate_packet(const u_char * Buffer)
 
     char *source_addr = inet_ntoa(source.sin_addr);
 
+    printf("Source address: %s\n", source_addr);
+
     int a,b,c,d;
 
     sscanf(source_addr,"%d.%d.%d.%d", &a, &b, &c, &d);
