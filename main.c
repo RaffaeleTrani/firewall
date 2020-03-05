@@ -78,32 +78,11 @@ int main(int argc, char **argv)
         pcap_loop(handle_in, -1, process_in_packet, NULL);
         pcap_loop(handle_out, -1, process_out_packet, NULL);
     } else {
-        //First get the list of available devices
-        printf("Finding available devices ... ");
-        if( pcap_findalldevs( &alldevsp , errbuf) )
-        {
-            printf("Error finding devices : %s" , errbuf);
-            exit(1);
-        }
-        printf("Done");
-
-        //Print the available devices
-        printf("\nAvailable Devices are :\n");
-        for(device = alldevsp ; device != NULL ; device = device->next)
-        {
-            printf("%d. %s - %s\n" , count , device->name , device->description);
-            if(device->name != NULL)
-            {
-                strcpy(devs[count] , device->name);
-            }
-            count++;
-        }
-
         //Open the device for sniffing
         printf("Opening NSM device veth1 for sniffing ... \n");
-        handle_in = pcap_open_live("veth1" , 1460 , 1 , 0 , errbuf);
+        handle_in = pcap_open_live("veth1" , 1460 , 0 , 0 , errbuf);
         printf("Opening NSM device veth2 for sniffing ... \n");
-        handle_out = pcap_open_live("veth2" , 1460 , 1 , 0 , errbuf);
+        handle_out = pcap_open_live("veth2" , 1460 , 0 , 0 , errbuf);
 
         if (handle_in == NULL)
         {
