@@ -133,6 +133,8 @@ int main(int argc, char **argv)
 void process_in_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *buffer)
 {
     int size = header->len, res;
+    printf("size: %d\n", size);
+    printf("caplen: %d\n", header->caplen);
     //Get the IP Header part of this packet , excluding the ethernet header
     struct iphdr *iph = (struct iphdr *)(buffer + sizeof(struct ethhdr));
 //    printf("Received packet from in interface, size: %d\n", size);
@@ -165,6 +167,8 @@ void process_out_packet(u_char *args, const struct pcap_pkthdr *header, const u_
 {
     int size = header->len;
     int res;
+    printf("size: %d\n", size);
+    printf("caplen: %d\n", header->caplen);
 //    printf("Received packet from out interface, size: %d\n", size);
     //Get the IP Header part of this packet , excluding the ethernet header
     struct iphdr *iph = (struct iphdr*)(buffer + sizeof(struct ethhdr));
