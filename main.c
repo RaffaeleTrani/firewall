@@ -99,9 +99,9 @@ int main(int argc, char **argv)
         }
 
         //Open the device for sniffing
-        printf("Opening NSM device veth1 for sniffing ... ");
+        printf("Opening NSM device veth1 for sniffing ... \n");
         handle_in = pcap_open_live("veth1" , 65536 , 1 , 0 , errbuf);
-        printf("Opening NSM device veth2 for sniffing ... ");
+        printf("Opening NSM device veth2 for sniffing ... \n");
         handle_out = pcap_open_live("veth2" , 65536 , 1 , 0 , errbuf);
 
         if (handle_in == NULL)
@@ -127,7 +127,7 @@ int main(int argc, char **argv)
 
 void process_in_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *buffer)
 {
-    printf("received packet from in interface\n");
+    printf("received packet from in interface, size of buffer: %lu, length of buffer: %lu\n", strlen(buffer), sizeof(buffer));
     int size = header->len;
     int res;
     //Get the IP Header part of this packet , excluding the ethernet header
@@ -153,7 +153,7 @@ void process_in_packet(u_char *args, const struct pcap_pkthdr *header, const u_c
     if (res == 1) {
         return;
     }
-    if (pcap_sendpacket(handle_out, buffer, strlen(buffer)) != 0)
+    if (pcap_sendpacket(handle_out, buffer, sizeof(buffer)) != 0)
     {
         fprintf(stderr,"\nError sending the packet: %s\n", pcap_geterr(handle_out));
         return;
@@ -189,7 +189,7 @@ void process_out_packet(u_char *args, const struct pcap_pkthdr *header, const u_
     if (res == 1) {
         return;
     }
-    if (pcap_sendpacket(handle_in, buffer, strlen(buffer)) != 0)
+    if (pcap_sendpacket(handle_in, buffer, sizeof(buffer)) != 0)
     {
         fprintf(stderr,"\nError sending the packet: %s\n", pcap_geterr(handle_out));
         return;
