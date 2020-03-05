@@ -158,7 +158,7 @@ void process_in_packet(u_char *args, const struct pcap_pkthdr *header, const u_c
         fprintf(stderr,"\nError sending the packet: %s\n", pcap_geterr(handle_out));
         return;
     }
-//    printf("Packet sent to out interface.\n");
+    printf("Packet sent to out interface.\n");
 }
 
 void process_out_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *buffer)
@@ -176,12 +176,10 @@ void process_out_packet(u_char *args, const struct pcap_pkthdr *header, const u_
             res = elaborate_packet(buffer);
             break;
         case 6:  //TCP Protocol
-            ++tcp;
             res = elaborate_packet(buffer);
             break;
         default: //Some Other Protocol like ARP etc.
 //            printf("Other\n");
-            ++others;
             break;
     }
 //    res = elaborate_packet(buffer);
@@ -193,7 +191,7 @@ void process_out_packet(u_char *args, const struct pcap_pkthdr *header, const u_
         fprintf(stderr,"\nError sending the packet: %s\n", pcap_geterr(handle_out));
         return;
     }
-//    printf("Packet sent to in interface.\n");
+    printf("Packet sent to in interface.\n");
 }
 
 
