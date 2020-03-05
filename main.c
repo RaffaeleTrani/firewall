@@ -80,9 +80,9 @@ int main(int argc, char **argv)
     } else {
         //Open the device for sniffing
         printf("Opening NSM device veth1 for sniffing ... \n");
-        handle_in = pcap_open_live("veth1" , 1460 , 0 , 0 , errbuf);
+        handle_in = pcap_open_live("veth1" , 65536 , 0 , 0 , errbuf);
         printf("Opening NSM device veth2 for sniffing ... \n");
-        handle_out = pcap_open_live("veth2" , 1460 , 0 , 0 , errbuf);
+        handle_out = pcap_open_live("veth2" , 65536 , 0 , 0 , errbuf);
 
         if (handle_in == NULL)
         {
@@ -206,25 +206,5 @@ int elaborate_packet(const u_char * Buffer)
     struct tcphdr *tcph=(struct tcphdr*)(Buffer + iphdrlen + sizeof(struct ethhdr));
 
     int header_size =  sizeof(struct ethhdr) + iphdrlen + tcph->doff*4;
-
-    printf("\n\n***********************TCP Packet*************************\n");
-
-
-    printf("TCP Header\n");
-    printf("   |-Source Port      : %u\n",ntohs(tcph->source));
-    printf("   |-Destination Port : %u\n",ntohs(tcph->dest));
-    printf("   |-Sequence Number    : %u\n",ntohl(tcph->seq));
-    printf("   |-Acknowledge Number : %u\n",ntohl(tcph->ack_seq));
-    printf("   |-Header Length      : %d DWORDS or %d BYTES\n" ,(unsigned int)tcph->doff,(unsigned int)tcph->doff*4);
-    //fprintf("   |-CWR Flag : %d\n",(unsigned int)tcph->cwr);
-    //fprintf("   |-ECN Flag : %d\n",(unsigned int)tcph->ece);
-    printf("   |-Urgent Flag          : %d\n",(unsigned int)tcph->urg);
-    printf("   |-Acknowledgement Flag : %d\n",(unsigned int)tcph->ack);
-    printf("   |-Push Flag            : %d\n",(unsigned int)tcph->psh);
-    printf("   |-Reset Flag           : %d\n",(unsigned int)tcph->rst);
-    printf("   |-Synchronise Flag     : %d\n",(unsigned int)tcph->syn);
-    printf("   |-Finish Flag          : %d\n",(unsigned int)tcph->fin);
-    printf("   |-Window         : %d\n",ntohs(tcph->window));
-    printf("   |-Checksum       : %d\n",ntohs(tcph->check));
     
 }
