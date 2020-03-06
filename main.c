@@ -80,17 +80,15 @@ int main(int argc, char **argv)
     } else {
         //Open the device for sniffing
         printf("Opening NSM device veth1 for sniffing ... \n");
-        handle_in = pcap_open_live("veth1" , 65536 , 0 , 0 , errbuf);
+        handle_in = pcap_open_live("veth1", 65536, 1, 0, errbuf);
         printf("Opening NSM device veth2 for sniffing ... \n");
-        handle_out = pcap_open_live("veth2" , 65536 , 0 , 0 , errbuf);
+        handle_out = pcap_open_live("veth2", 65536, 1, 0, errbuf);
 
-        if (handle_in == NULL)
-        {
+        if (handle_in == NULL) {
             fprintf(stderr, "Couldn't open device veth1 : %s\n", errbuf);
             exit(1);
         }
-        if (handle_out == NULL)
-        {
+        if (handle_out == NULL) {
             fprintf(stderr, "Couldn't open device veth2 : %s\n", errbuf);
             exit(1);
         }
@@ -99,11 +97,12 @@ int main(int argc, char **argv)
         if (fork() == 0) {
             //Child handle veth1
             //Put the device in sniff loop
-            pcap_loop(handle_in , -1 , process_in_packet , NULL);
+            pcap_loop(handle_in, -1, process_in_packet, NULL);
+        } else {
+            //Parent handle veth2
+            //Put the device in sniff loop
+            pcap_loop(handle_out, -1, process_out_packet, NULL);
         }
-        //Parent handle veth2
-        //Put the device in sniff loop
-        pcap_loop(handle_out, -1, process_out_packet, NULL);
     }
 
     return 0;
@@ -151,7 +150,6 @@ void process_out_packet(u_char *args, const struct pcap_pkthdr *header, const u_
 //    printf("Received packet from out interface, size: %d\n", size);
     //Get the IP Header part of this packet , excluding the ethernet header
     struct iphdr *iph = (struct iphdr*)(buffer + sizeof(struct ethhdr));
-    ++total;
     switch (iph->protocol) //Check the Protocol and do accordingly...
     {
         case 1:  //ICMP Protocol
