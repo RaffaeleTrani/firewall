@@ -44,9 +44,9 @@ int main(int argc, char **argv)
             printf("%d. %s - %s\n" , count , device->name , device->description);
             if(device->name != NULL)
             {
-                if (count == 1)
+                if (count == 2)
                     in_name = device->name;
-                else if (count == 2)
+                else if (count == 3)
                     out_name = device->name;
             }
             count++;
